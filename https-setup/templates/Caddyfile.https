@@ -1,0 +1,105 @@
+{
+    # Global options for local development with HTTPS
+    local_certs
+}
+
+# Dashboard - Main page showing available services
+n8n-dashboard.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    root * /etc/caddy/addons
+    try_files {path} /dashboard.html
+    encode zstd gzip
+    file_server 
+}
+
+# N8N
+n8n.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy n8n:5678
+}
+
+# Open WebUI
+webui.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy open-webui:8080
+}
+
+# Flowise
+flowise.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy flowise:3001
+}
+
+# Supabase
+supabase.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy kong:8000
+}
+
+# Grafana
+grafana.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy grafana:3000
+}
+
+# Prometheus
+prometheus.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    basic_auth { 
+        {$PROMETHEUS_USERNAME} {$PROMETHEUS_PASSWORD_HASH}
+    }
+    reverse_proxy prometheus:9090
+}
+
+# Langfuse
+langfuse.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy langfuse-web:3000
+}
+
+# Letta
+letta.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy letta:8283
+}
+
+# Weaviate
+weaviate.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy weaviate:8080
+}
+
+# Qdrant
+qdrant.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy qdrant:6333
+}
+
+# Neo4j
+neo4j.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy neo4j:7474
+}
+
+# Neo4j Bolt Protocol (wss)
+https://neo4j.local:7687 {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    reverse_proxy neo4j:7687
+}
+
+# SearXNG
+searxng.local {
+    tls /etc/caddy/certs/local-domains.pem /etc/caddy/certs/local-domains-key.pem
+    basic_auth { 
+        {$SEARXNG_USERNAME} {$SEARXNG_PASSWORD_HASH}
+    }
+    encode zstd gzip
+    reverse_proxy searxng:8080 {
+        header_up X-Forwarded-Port {http.request.port}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up Connection "close"
+    }
+}
+
+# Import additional configurations
+import /etc/caddy/addons/*.conf

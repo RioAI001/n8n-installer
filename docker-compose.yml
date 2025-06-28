@@ -38,6 +38,7 @@ x-n8n: &service-n8n
     QUEUE_BULL_REDIS_PORT: ${REDIS_PORT:-6379}
     N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
     N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE: true
+    N8N_SECURE_COOKIE: false
     NODE_FUNCTION_ALLOW_BUILTIN: "*"
     NODE_FUNCTION_ALLOW_EXTERNAL: cheerio,axios,moment,lodash
 
@@ -187,6 +188,7 @@ services:
       - ./caddy-addon:/etc/caddy/addons:ro
       - caddy-data:/data:rw
       - caddy-config:/config:rw
+      - ./https-setup/certs:/etc/caddy/certs:ro
     environment:
       - N8N_HOSTNAME=${N8N_HOSTNAME}
       - WEBUI_HOSTNAME=${WEBUI_HOSTNAME}
@@ -381,7 +383,7 @@ services:
       - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}/
       - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
       - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
-    # cap_drop: - ALL  # Temporarily commented out for first run
+    # # # # cap_drop: - ALL  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run  # Temporarily commented out for first run
     cap_add:
       - CHOWN
       - SETGID

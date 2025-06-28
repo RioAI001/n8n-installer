@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Development Stack Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1600px; 
+            margin: 0 auto; 
+            background: rgba(255,255,255,0.95); 
+            backdrop-filter: blur(10px);
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #2d3748; 
+            text-align: center; 
+            margin-bottom: 25px;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        /* Force 4 columns on larger screens */
+        @media (min-width: 1400px) {
+            .services-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* 3 columns on medium screens */
+        @media (min-width: 1000px) and (max-width: 1399px) {
+            .services-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* 2 columns on smaller screens */
+        @media (min-width: 600px) and (max-width: 999px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .service-card { 
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .service-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .service-title::before {
+            content: attr(data-icon);
+            font-size: 1.3rem;
+        }
+        .service-description {
+            color: #718096;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        .service-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .service-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .service-link:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+        .service-link.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .service-link.secondary:hover {
+            background: #cbd5e0;
+        }
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            background: #f0fff4;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .category-header {
+            color: #4a5568;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 25px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .info-panel {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .quick-link {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .quick-link:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .loading::after {
+            content: '⏳';
+            margin-left: 5px;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.8rem; }
+            .services-grid { grid-template-columns: 1fr; }
+            .service-links { flex-direction: column; }
+            .quick-links { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AI Development Stack Dashboard</h1>
+        
+        <div class="category-header">🔄 Workflow Automation</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-title" data-icon="⚡">N8N Workflow Automation</div>
+                <div class="service-description">Low-code automation platform with 400+ integrations for connecting apps and automating workflows</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('n8n', 'https://n8n.local')" class="service-link">Open N8N</button>
+                    <button onclick="openService(5678)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Running on ports 5001/5678</div>
+            </div>
+        </div>
+
+        <div class="category-header">🤖 AI Interfaces</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-title" data-icon="💬">Open WebUI</div>
+                <div class="service-description">ChatGPT-like interface for local and remote AI models with conversation management</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('open-webui', 'https://webui.local')" class="service-link">Open WebUI</button>
+                    <button onclick="openService(8080)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Running on ports 8090/8080</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="🔗">Flowise</div>
+                <div class="service-description">Visual no-code tool for building LLM flows and AI agents with drag-and-drop interface</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('flowise', 'https://flowise.local')" class="service-link">Open Flowise</button>
+                    <button onclick="openService(3001)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Running on ports 3010/3001</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="🧠">Letta</div>
+                <div class="service-description">AI agent platform with persistent memory and advanced reasoning capabilities</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('letta', 'https://letta.local')" class="service-link">Open Letta</button>
+                </div>
+                <div class="status-indicator">✅ Available via HTTPS</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="🦙">Ollama</div>
+                <div class="service-description">Run large language models locally (Llama 3, Mistral, Gemma) on your own hardware</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('ollama', 'http://localhost:11434')" class="service-link">Open Ollama</button>
+                </div>
+                <div class="status-indicator">⚙️ CPU/GPU modes available</div>
+            </div>
+        </div>
+
+        <div class="category-header">🗄️ Backend Services</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-title" data-icon="🔥">Supabase</div>
+                <div class="service-description">Open-source Firebase alternative with PostgreSQL, real-time subscriptions, and auth</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('supabase', 'https://supabase.local')" class="service-link">Supabase Studio</button>
+                    <button onclick="openService(8001)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Running on port 8001</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="📊">Langfuse</div>
+                <div class="service-description">LLM engineering platform for tracing, evaluating and monitoring AI applications</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('langfuse', 'https://langfuse.local')" class="service-link">Open Langfuse</button>
+                </div>
+                <div class="status-indicator">✅ Available via HTTPS</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="🕷️">Crawl4AI</div>
+                <div class="service-description">Flexible web crawler designed for AI, enabling you to extract data from websites</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('crawl4ai', 'https://crawl4ai.local')" class="service-link">Open Crawl4AI</button>
+                </div>
+                <div class="status-indicator">🔧 API-based service</div>
+            </div>
+        </div>
+
+        <div class="category-header">🔍 Vector Databases & Search</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-title" data-icon="🔍">Qdrant</div>
+                <div class="service-description">High-performance vector database for AI applications and semantic search</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('qdrant', 'https://qdrant.local')" class="service-link">Qdrant Console</button>
+                    <button onclick="openService(6333)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Available via HTTPS</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="🌊">Weaviate</div>
+                <div class="service-description">Open-source vector database with built-in ML models and GraphQL API</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('weaviate', 'https://weaviate.local')" class="service-link">Weaviate Console</button>
+                    <button onclick="openService(8088)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Available via HTTPS</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="🔎">SearXNG</div>
+                <div class="service-description">Privacy-respecting metasearch engine aggregating results from multiple sources</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('searxng', 'https://searxng.local')" class="service-link">Search Engine</button>
+                    <button onclick="openService(8081)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Available via HTTPS</div>
+            </div>
+        </div>
+
+        <div class="category-header">📈 Monitoring & Analytics</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-title" data-icon="📊">Grafana</div>
+                <div class="service-description">Analytics and monitoring platform with beautiful dashboards and alerting</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('grafana', 'https://grafana.local')" class="service-link">Open Grafana</button>
+                    <button onclick="openService(3000)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Running on ports 3030/3000</div>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title" data-icon="📉">Prometheus</div>
+                <div class="service-description">Time-series database and monitoring system with powerful query language</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('prometheus', 'https://prometheus.local')" class="service-link">Prometheus UI</button>
+                    <button onclick="openService(9090)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Available via HTTPS</div>
+            </div>
+        </div>
+
+        <div class="category-header">📊 Graph Database</div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-title" data-icon="🕸️">Neo4j</div>
+                <div class="service-description">Graph database platform for connected data with Cypher query language</div>
+                <div class="service-links">
+                    <button onclick="autoStartService('neo4j', 'https://neo4j.local')" class="service-link">Neo4j Browser</button>
+                    <button onclick="openService(7474)" class="service-link secondary">Direct Port</button>
+                </div>
+                <div class="status-indicator">✅ Available via HTTPS</div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>🛠️ Quick Actions</h3>
+            <p>Access commonly used development tools and shortcuts:</p>
+            <div class="quick-links">
+                <button onclick="autoStartService('n8n', 'https://n8n.local')" class="quick-link">Start with N8N</button>
+                <button onclick="autoStartService('open-webui', 'https://webui.local')" class="quick-link">Chat with AI</button>
+                <button onclick="autoStartService('supabase', 'https://supabase.local')" class="quick-link">Database Studio</button>
+                <button onclick="autoStartService('grafana', 'https://grafana.local')" class="quick-link">View Metrics</button>
+                <button onclick="autoStartService('flowise', 'https://flowise.local')" class="quick-link">Build AI Flows</button>
+                <button onclick="autoStartService('langfuse', 'https://langfuse.local')" class="quick-link">Monitor AI</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-start service functionality
+        async function autoStartService(service, url) {
+            const button = event.target;
+            const originalText = button.textContent;
+            
+            // Add loading state
+            button.classList.add('loading');
+            button.textContent = 'Starting...';
+            button.disabled = true;
+            
+            try {
+                console.log(`Auto-starting service: ${service}`);
+                
+                // Call the autostart script via a simple HTTP request
+                // Since we're in a browser environment, we'll use a workaround
+                // to trigger the service start and then open the URL
+                
+                // For WSL environment, we'll try to call the script directly
+                // This is a simplified approach - in production you might want a proper API
+                await callAutoStartScript(service, url);
+                
+                // Open the service URL after a brief delay
+                setTimeout(() => {
+                    window.open(url, '_blank');
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error starting service:', error);
+                // Fallback: just open the URL
+                window.open(url, '_blank');
+            } finally {
+                // Restore button state
+                button.classList.remove('loading');
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        async function callAutoStartScript(service, url) {
+            try {
+                const apiUrl = `http://127.0.0.1:3998/autostart?service=${encodeURIComponent(service)}&url=${encodeURIComponent(url)}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Auto-start response:', result);
+                
+            } catch (error) {
+                console.log('API call failed, proceeding anyway:', error);
+                // Don't throw - we want to proceed with opening the URL regardless
+            }
+        }
+        
+        function openService(port) {
+            window.open(`http://localhost:${port}`, '_blank');
+        }
+        
+        // Update page title with current host
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentHost = window.location.hostname || 'localhost';
+            if (currentHost !== 'localhost') {
+                document.title = `AI Stack Dashboard - ${currentHost}`;
+            }
+        });
+        
+        // Add some visual feedback for button interactions
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.service-link, .quick-link')) {
+                e.target.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
